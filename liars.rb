@@ -1,38 +1,61 @@
 require 'pry'
+require 'rubygems'
+require 'numbers_and_words'
 
-class Game
-  # TODO: Throw an error if you try to access data that you shouldn't have
-  # (like the dice for a player that's not your own). Means bots have
-  # to be initialized with a player?
+DEBUG = true
+
+class Match
+  def initialize(*players, number_of_games)
+    @players, @number_of_games = players, number_of_games
+    @games = []
+  end
   
-  # TODO: Throw an error if your bid isn't valid (i.e., is smaller than the
-  # latest bid).
+  def play!
+    @number_of_games.times do
+      @games << (g = Game.new(*@players).play!)
+      puts "-" * 40 + "\nGame #{@games.size} won by #{g.winner}\n\n" if DEBUG
+    end
+    
+    @games.each_with_object(Hash.new(0)) do |game, summary|
+      summary[game.winner] += 1
+    end
+  end
+end
+
+class Game  
+  attr_accessor :bids
+  attr_reader :hands, :winner
   
   NUMBER_OF_DICE_PER_HAND = 5
-  
-  require 'json'
-  attr_accessor :bids
-  attr_reader :hands
   
   def initialize(*players)
     @players = players
     @hands = @players.each_with_object({}) { |pl, h| h[pl] = create_hand }
     @players.each { |pl| pl.game = self }
-    @bids = []
-    @turn_cursor = 0
+    @bids, @rounds, @turn_index = [], [], 0
   end
   
   def play!
     while @players.size > 1
       next_player.go! until challenge?
-      adjudicate_round!
+      @rounds << Round.new(@bids, adjudicate_round!)
+      puts "Round #{@rounds.length}: #{@rounds.last}" if DEBUG
     end
     
-    puts "Winner is #{@players.first}!"
+    @winner = @players.first
+    self
   end
   
   def dice_remaining
     @hands.values.map(&:size).inject(:+)
+  end
+  
+  def turn_count
+    @turn_index + 1
+  end
+  
+  def inspect
+    {winner: @winner}.inspect
   end
   
   private
@@ -51,11 +74,17 @@ class Game
   
   def adjudicate_round!
     challenged_bid, challenge = @bids[-2], @bids[-1]
-    @round_loser = bid_is_good?(challenged_bid) ? challenge.player : challenged_bid.player
-    @turn_cursor = @players.index(@round_loser)
-    remove_die_from_player!(@round_loser)
+    winner, loser = if bid_is_good?(challenged_bid)
+                      [challenged_bid.player, challenge.player]
+                    else 
+                      [challenge.player, challenged_bid.player]
+                    end
+    
+    @turn_index = @players.index(loser)
+    remove_die_from_player!(loser)
     roll_new_hands!
     @bids = []
+    winner
   end
   
   def bid_is_good?(bid)
@@ -77,9 +106,15 @@ class Game
   end
   
   def next_player
-    @players[@turn_cursor % @players.size].tap do |pl|
-      @turn_cursor += 1
+    @players[@turn_index % @players.size].tap do |pl|
+      @turn_index += 1
     end
+  end
+end
+
+class Round < Struct.new(:bids, :winner)
+  def to_s
+    "#{bids}, Winner: #{winner}"
   end
 end
 
@@ -97,7 +132,11 @@ class Bid
   end
   
   def to_s
-    "#{player}: #{quantity} #{value}#{quantity > 1 ? 's' : ''}"
+    if challenge?
+      "#{player} CHALLENGE"
+    else
+      "#{player}: #{quantity.to_words} #{value}#{quantity > 1 ? 's' : ''}"
+    end
   end
 end
 
@@ -113,11 +152,16 @@ class Player
   end
   
   def hand
-    game.hands[self]
+    game.hands[self].sort
   end
   
   def bid(quantity, value)
-    game.bids << Bid.new(self, quantity, value)
+    b = Bid.new(self, quantity, value)
+    if valid_bid?(b)
+      game.bids << b
+    else
+      raise "Bid \"#{b}\" is invalid!"
+    end
   end
   
   def challenge!
@@ -127,6 +171,18 @@ class Player
   def to_s
     name
   end
+  
+  private
+  
+  def valid_bid?(b)
+    latest_bid = game.bids.last
+    return true if latest_bid.nil?
+    return false if latest_bid.player == b.player || latest_bid.challenge?
+    return true if b.challenge?
+    
+    (b.quantity == latest_bid.quantity && b.value > latest_bid.value) || 
+      b.quantity > latest_bid.quantity
+  end
 end
 
 class InteractivePlayer < Player
@@ -135,10 +191,8 @@ class InteractivePlayer < Player
   end
   
   def go!
-    puts "#{self}'s turn."
-    puts "Bid history: #{game.bids.inspect}"
-    puts "#{self}'s hand: #{hand.inspect}"
-    print "Bid: "
+    puts "Bid history: #{game.bids.inspect}\n#{self}'s hand: #{hand.inspect}"
+    print "#{self}'s bid (e.g., write '2 4' to mean 'two 4s'): "
     bid_input = gets.chomp
     if bid_input =~ /challenge/
       challenge!
@@ -148,12 +202,16 @@ class InteractivePlayer < Player
   end
 end
 
-class Dumbot < Player
+class DumbBot < Player
+  def initialize(name)
+    @name = name
+  end
+  
   def go!
     last_bid = game.bids.last
     if last_bid
       if rand < 0.5
-        bid(last_bid[:quantity] + 1, last_bid[:value])
+        bid(last_bid.quantity + 1, last_bid.value)
       else
         challenge!
       end
@@ -162,3 +220,16 @@ class Dumbot < Player
     end
   end
 end
+
+class ScottBot < Player
+  def go!
+    hand # [1, 4, 4, 5]
+    game.dice_remaining # 22
+  end
+end
+
+# TODO: Demo Mode? (Want to be able to halt before each player's decision, given what they know, 
+# hit ENTER, then see what they come up with.)
+
+# TODO: Write README that explains how to write bots, how to test them (against)
+# an interactive bot, a dumbBot, etc.
