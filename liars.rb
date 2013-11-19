@@ -24,7 +24,7 @@ end
 
 class Game  
   attr_accessor :bids
-  attr_reader :hands, :winner
+  attr_reader :hands, :winner, :rounds
   
   NUMBER_OF_DICE_PER_HAND = 5
   
@@ -38,7 +38,7 @@ class Game
   def play!
     while @players.size > 1
       next_player.go! until challenge?
-      @rounds << Round.new(@bids, adjudicate_round!)
+      @rounds << Round.new(@bids, @hands.each_with_object({}) { |(k, v), hsh| hsh[k] = v.dup}).set_winner(adjudicate_round!)
       puts "Round #{@rounds.length}: #{@rounds.last}" if DEBUG
     end
     
@@ -46,7 +46,7 @@ class Game
     self
   end
   
-  def dice_remaining
+  def dice_in_play
     @hands.values.map(&:size).inject(:+)
   end
   
@@ -58,6 +58,10 @@ class Game
     {winner: @winner}.inspect
   end
   
+  def latest_bid
+    @bids.last
+  end
+  
   private
   
   def number_of_dice_of_value(value)
@@ -65,7 +69,7 @@ class Game
   end
   
   def challenge?
-    @bids.last && @bids.last.challenge? 
+    latest_bid && latest_bid.challenge? 
   end
   
   def roll_new_hands!
@@ -112,9 +116,20 @@ class Game
   end
 end
 
-class Round < Struct.new(:bids, :winner)
+class Round
+  attr_accessor :bids, :hands, :winner
+  
+  def initialize(bids, hands)
+    @bids, @hands = bids, hands
+  end
+  
+  def set_winner(winner)
+    @winner = winner
+    self
+  end
+  
   def to_s
-    "#{bids}, Winner: #{winner}"
+    "#{bids}, Winner: #{winner}. Hands were: #{hands}"
   end
 end
 
@@ -133,9 +148,9 @@ class Bid
   
   def to_s
     if challenge?
-      "#{player} CHALLENGE"
+      "#{player} CHALLENGED"
     else
-      "#{player}: #{quantity.to_words} #{value}#{quantity > 1 ? 's' : ''}"
+      "#{player} bid #{quantity.to_words} #{value}#{quantity > 1 ? 's' : ''}"
     end
   end
 end
@@ -151,11 +166,23 @@ class Player
     raise NotImplementedError.new("You must implement the `go!` method")
   end
   
+  def latest_bid
+    game.latest_bid
+  end
+  
+  def bids
+    game.bids
+  end
+  
   def hand
     game.hands[self].sort
   end
   
-  def bid(quantity, value)
+  def dice_in_play
+    game.dice_in_play
+  end
+  
+  def bid!(quantity, value)
     b = Bid.new(self, quantity, value)
     if valid_bid?(b)
       game.bids << b
@@ -165,7 +192,7 @@ class Player
   end
   
   def challenge!
-    bid(nil, :challenge)
+    bid!(nil, :challenge)
   end
   
   def to_s
@@ -174,14 +201,12 @@ class Player
   
   private
   
-  def valid_bid?(b)
-    latest_bid = game.bids.last
+  def valid_bid?(b)    
     return true if latest_bid.nil?
     return false if latest_bid.player == b.player || latest_bid.challenge?
     return true if b.challenge?
     
-    (b.quantity == latest_bid.quantity && b.value > latest_bid.value) || 
-      b.quantity > latest_bid.quantity
+    (b.quantity == latest_bid.quantity && b.value > latest_bid.value) || b.quantity > latest_bid.quantity
   end
 end
 
@@ -191,13 +216,13 @@ class InteractivePlayer < Player
   end
   
   def go!
-    puts "Bid history: #{game.bids.inspect}\n#{self}'s hand: #{hand.inspect}"
+    puts "Bid history: #{bids.inspect}\n#{self}'s hand: #{hand.inspect}"
     print "#{self}'s bid (e.g., write '2 4' to mean 'two 4s'): "
     bid_input = gets.chomp
     if bid_input =~ /challenge/
       challenge!
     else
-      bid(*bid_input.split(' ').map(&:to_i))
+      bid!(*bid_input.split(' ').map(&:to_i))
     end
   end
 end
@@ -208,28 +233,46 @@ class DumbBot < Player
   end
   
   def go!
-    last_bid = game.bids.last
-    if last_bid
+    if latest_bid
       if rand < 0.5
-        bid(last_bid.quantity + 1, last_bid.value)
+        bid!(latest_bid.quantity + 1, latest_bid.value)
       else
         challenge!
       end
     else
-      bid(1, rand(6) + 1)
+      bid!(1, rand(6) + 1)
     end
   end
 end
 
-class ScottBot < Player
-  def go!
-    hand # [1, 4, 4, 5]
-    game.dice_remaining # 22
-  end
-end
-
-# TODO: Demo Mode? (Want to be able to halt before each player's decision, given what they know, 
-# hit ENTER, then see what they come up with.)
-
-# TODO: Write README that explains how to write bots, how to test them (against)
-# an interactive bot, a dumbBot, etc.
+# class ExampleBot < Player
+#   # You must define a `go!` function, which must either `bid!`
+#   # or `challenge!` based on the information available to you
+#   # at each turn (your hand, the number of dice still in play, the
+#   # bids so far, etc.)
+#   def go!
+#     hand # [1, 4, 4, 5]
+#     dice_in_play # 22
+#     bids # ["James bid two 4s", "Scott bid three 3s", ...]
+#     latest_bid
+#     
+#     bid!(2, 4) # This is how you submit a bid of two 4s
+#     challenge! # This is how you issue a challenge
+#     number_of_dice_per_person # {'James': 2, 'Menke': 1, 'Freedman': 4}
+#     
+#     # If you want, you can store arbitrary data and it will persist for
+#     # the life of the match. That way you can keep track of more complicated
+#     # stuff to make decisions with.
+#     @data_1 = "Something"
+#     @data_2 = {key: "value", other_key: "other_value"}
+#     
+#     # Increment every round of the game.
+#     
+#     # You can also get access to more extensive history, by exploring
+#     # the game.rounds object.
+#   end
+#   
+#   class ProbabilityCalculator
+#     odds([2, 6], hand, game.rounds.last.hands)
+#   end
+# end
