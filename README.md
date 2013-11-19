@@ -24,13 +24,13 @@ irb -r ./liars.rb
 This tells the interactive Ruby interpreter to start with the **liars.rb** file loaded. From there you should be able to run matches. For instance at the prompt you can write:
 
 ```rb
-> Match.new(DumbBot.new('James'), DumbBot.new('Menke'), 10).play!
+Match.new(DumbBot.new('James'), DumbBot.new('Menke'), 10).play!
 ```
 
 This will play out a 10-game match between two `DumbBots` named "James" and "Menke." Let's add an `InteractivePlayer` -- i.e., a player controlled by you -- to the mix!
 
 ```rb
-> Match.new(DumbBot.new('James'), DumbBot.new('Menke'), InteractivePlayer.new('Nikhil'), 10).play!
+Match.new(DumbBot.new('James'), DumbBot.new('Menke'), InteractivePlayer.new('Nikhil'), 10).play!
 ```
 
 Matches can be between any number of bots, for any number of games. Bots can be initialized with human-readable names for ease of debugging.
