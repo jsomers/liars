@@ -244,35 +244,3 @@ class DumbBot < Player
     end
   end
 end
-
-# class ExampleBot < Player
-#   # You must define a `go!` function, which must either `bid!`
-#   # or `challenge!` based on the information available to you
-#   # at each turn (your hand, the number of dice still in play, the
-#   # bids so far, etc.)
-#   def go!
-#     hand # [1, 4, 4, 5]
-#     dice_in_play # 22
-#     bids # ["James bid two 4s", "Scott bid three 3s", ...]
-#     latest_bid
-#     
-#     bid!(2, 4) # This is how you submit a bid of two 4s
-#     challenge! # This is how you issue a challenge
-#     number_of_dice_per_person # {'James': 2, 'Menke': 1, 'Freedman': 4}
-#     
-#     # If you want, you can store arbitrary data and it will persist for
-#     # the life of the match. That way you can keep track of more complicated
-#     # stuff to make decisions with.
-#     @data_1 = "Something"
-#     @data_2 = {key: "value", other_key: "other_value"}
-#     
-#     # Increment every round of the game.
-#     
-#     # You can also get access to more extensive history, by exploring
-#     # the game.rounds object.
-#   end
-#   
-#   class ProbabilityCalculator
-#     odds([2, 6], hand, game.rounds.last.hands)
-#   end
-# end
