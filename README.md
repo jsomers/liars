@@ -96,17 +96,27 @@ class YourBot < Player
     
     latest_bid.to_s # => The string representation of a bid is meant to be easy to read. In this case it
                     # might say "Menke bid four 3s", because the quantity was 4 and the value was 3.
-                    
-    # Given the above, you can make a bid:
-    bid!(2, 1) # Make a bid of two 1s
-    
-    # Or issue a challenge:
-    challenge!
   end
 end
 ```
 
-If you like, you can define your own data that will, by default, be persisted for the duration of the match. You do it by creating an `@instance_variable`. It might look like this:
+Given all of the information at a point in time, your bot must emit either a bid or a challenge:
+
+```rb
+class ExampleBot < Player
+  def go!
+    # ...
+    
+    if something
+      bid!(2, 1) # Make a bid of two 1s
+    else
+      challenge!
+    end
+  end
+end
+```
+
+If you like, you can even define your own data store that will, by default, be persisted for the duration of the match. You do it by creating an `@instance_variable`. It might look like this:
 
 ```rb
 class SmartBot < Player
@@ -118,10 +128,11 @@ class SmartBot < Player
   end
   
   def go!
-    # Modify the data:
+    # Modify your custom hash:
     @other_data_hash[players.first] = 10
     
-    # Access the data:
+    # Access your custom hash:
     @other_data_hash[players.first] # => 10
   end
+end
 ```
