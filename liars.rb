@@ -24,7 +24,7 @@ end
 
 class Game  
   attr_accessor :bids
-  attr_reader :hands, :winner, :rounds
+  attr_reader :hands, :winner, :rounds, :players
   
   NUMBER_OF_DICE_PER_HAND = 5
   
@@ -60,6 +60,10 @@ class Game
   
   def latest_bid
     @bids.last
+  end
+  
+  def number_of_dice_per_player
+    @hands.each_with_object({}) { |(k, v), h| h[k] = v.size }
   end
   
   private
@@ -157,6 +161,7 @@ end
 
 class Player
   attr_accessor :name, :game
+  InvalidBidError = Class.new(StandardError)
   
   def initialize
     @name = "#{self.class.name}:#{object_id}"
@@ -182,12 +187,20 @@ class Player
     game.dice_in_play
   end
   
+  def players
+    game.players
+  end
+  
+  def number_of_dice_per_player
+    game.number_of_dice_per_player
+  end
+  
   def bid!(quantity, value)
     b = Bid.new(self, quantity, value)
     if valid_bid?(b)
       game.bids << b
     else
-      raise "Bid \"#{b}\" is invalid!"
+      raise InvalidBidError.new("Bid \"#{b}\" is invalid! (Previous bid: \"#{game.latest_bid})\"")
     end
   end
   
