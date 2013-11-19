@@ -100,7 +100,7 @@ class YourBot < Player
 end
 ```
 
-Given all of the information at a point in time, your bot must emit either a bid or a challenge:
+Given all of that information, your bot must emit either a bid or a challenge. That's the output of the `go!` function:
 
 ```rb
 class ExampleBot < Player
