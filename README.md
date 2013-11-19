@@ -96,6 +96,12 @@ class YourBot < Player
     
     latest_bid.to_s # => The string representation of a bid is meant to be easy to read. In this case it
                     # might say "Menke bid four 3s", because the quantity was 4 and the value was 3.
+                    
+    # If you want you can look even further back to previous rounds.
+    round = game.rounds.first # => returns a `Round` object, the first from this game.
+    round.bids # => returns an array of `Bid` objects
+    round.hands # => What did everyone's hand look like at the end of this round (when they revealed them)?
+    round.winner # => returns a `Player` object
   end
 end
 ```
