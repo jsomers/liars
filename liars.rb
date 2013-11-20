@@ -2,7 +2,7 @@ require 'pry'
 require 'rubygems'
 require 'numbers_and_words'
 
-DEBUG = true
+DEBUG = false
 
 class Match
   def initialize(*players, number_of_games)
@@ -254,6 +254,28 @@ class DumbBot < Player
       end
     else
       bid!(1, rand(6) + 1)
+    end
+  end
+end
+
+class BlindOddsBot < Player
+  def initialize(name)
+    @name = name
+  end
+  
+  def go!
+    if latest_bid
+      if latest_bid.quantity > dice_in_play/6
+        challenge!
+      else
+        if latest_bid.value == 6
+          bid!(latest_bid.quantity + 1, 1)
+        else
+          bid!(latest_bid.quantity, latest_bid.value + 1)
+        end
+      end
+    else
+      bid!(1, hand[0])
     end
   end
 end
