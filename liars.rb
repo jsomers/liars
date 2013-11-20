@@ -2,7 +2,7 @@ require 'pry'
 require 'rubygems'
 require 'numbers_and_words'
 
-DEBUG = false
+DEBUG = true
 
 class Match
   def initialize(*players, number_of_games)
@@ -265,7 +265,7 @@ class BlindOddsBot < Player
   
   def go!
     if latest_bid
-      if latest_bid.quantity > dice_in_play/6
+      if latest_bid.quantity > dice_in_play / 6
         challenge!
       else
         if latest_bid.value == 6
