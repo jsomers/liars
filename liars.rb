@@ -516,3 +516,42 @@ class SweetSixteenBot < Player
     end
   end
 end
+
+class FlowBot < Player
+  #This bot just tries to go with the flow of the game
+  #Also it's a play on the name of the band "Flobots" (http://en.wikipedia.org/wiki/Flobots)
+  #Also it plays "blind", not looking at its own hand, and therefore is pretty dumb
+  
+  def initialize(name)
+    @name = name
+  end
+  
+  def go!
+    if latest_bid
+      if rand > (latest_bid.quantity / dice_in_play)
+	  	bids_array = bids.map { |b| b.value }
+		freq_array = [0.0,0.0,0.0,0.0,0.0,0.0]
+		bids_array.each { |v| freq_array[v-1] += 1 }
+		freq_array_pct = freq_array.collect { |n| n / bids_array.length }
+		if freq_array_pct.max > 0.6
+			flow_bid = freq_array_pct.index(freq_array_pct.max) + 1
+			if flow_bid > latest_bid.value
+				bid!(latest_bid.quantity, flow_bid)
+			else
+				bid!(latest_bid.quantity + 1, flow_bid)
+			end
+		else
+			if latest_bid.value != 6
+				bid!(latest_bid.quantity, latest_bid.value + 1)
+			else
+				bid!(latest_bid.quantity + 1, 1)
+			end
+		end
+      else
+        challenge!
+      end
+    else
+      bid!(1, 1)
+    end
+  end
+end
