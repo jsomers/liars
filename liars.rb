@@ -516,3 +516,12 @@ class SweetSixteenBot < Player
     end
   end
 end
+
+class JimboBot < Player
+  def go!
+    # Start with logic similar to Nikhil's BlindOddsBot
+    # Update probability of n dice of value k based on own hand, 
+    # and on other players' bids, conditioned on their reliability in the past,
+    # and on depth into round (earlier bids are less reliable).
+  end
+end
