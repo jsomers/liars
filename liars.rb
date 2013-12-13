@@ -286,233 +286,233 @@ class SweetSixteenBot < Player
   end
   
   def go!
-	myRand = rand
+  myRand = rand
     if latest_bid
       if dice_in_play == 10 || dice_in_play == 9
-		if hand[3] == 6 && hand[4] == 6
-			if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
-				bid!(2, 6)
-			elsif latest_bid.quantity == 2 && latest_bid.value == 6
-				bid!(3, 6)
-			elsif latest_bid.quantity == 3 && latest_bid.value == 6
-				bid!(4, 1)
-			else
-				challenge!
-			end
-		elsif hand[4] == 6
-			if latest_bid.quantity == 1
-				if myRand < 0.24416
-					bid!(2, 6)
-				else
-					bid!(2, 1)
-				end
-			elsif latest_bid.quantity == 2 && latest_bid.value < 6
-				if myRand < 0.48832
-					bid!(2, 6)
-				elsif myRand < 0.63832
-					bid!(3, 1)
-				else
-					challenge!
-				end
-			elsif latest_bid.quantity == 2 && latest_bid.value == 6
-				if myRand < 0.48832
-					bid!(3, 6)
-				elsif myRand < 0.63832
-					bid!(3, 1)
-				else
-					challenge!
-				end
-			else
-				challenge!
-			end
-		else
-			if latest_bid.quantity == 1
-				if myRand < 0.48832
-					bid!(2, 6)
-				else
-					bid!(2, 1)
-				end
-			elsif latest_bid.quantity == 2 && latest_bid.value < 6
-				if myRand < 0.15109
-					bid!(2, 6)
-				elsif myRand < 0.75109
-					bid!(3, 1)
-				else
-					challenge!
-				end
-			elsif latest_bid.quantity == 2 && latest_bid.value == 6
-				if myRand < 0.05109
-					bid!(3, 6)
-				elsif myRand < 0.75109
-					bid!(3, 1)
-				else
-					challenge!
-				end
-			else
-				challenge!
-			end
-		end
-	  elsif dice_in_play == 8
-			if hand[3] == 6 && hand[4] == 6
-				if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
-					bid!(2, 6)
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					bid!(3, 6)
-				elsif latest_bid.quantity == 3 && latest_bid.value == 6
-					bid!(4, 6)
-				else
-					challenge!
-				end
-			elsif hand[4] == 6
-				if latest_bid.quantity == 1
-					if myRand < 0.162773
-						bid!(2, 6)
-					else
-						bid!(2, 1)
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value < 6
-					if myRand < 0.162773
-						bid!(2, 6)
-					elsif myRand < 0.53832
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					if myRand < 0.162773
-						bid!(3, 6)
-					elsif myRand < 0.53832
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				else
-					challenge!
-				end
-			else
-				if latest_bid.quantity == 1
-					if myRand < 0.162773
-						bid!(2, 6)
-					else
-						bid!(2, 1)
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value < 6
-					if myRand < 0.15109
-						bid!(2, 6)
-					elsif myRand < 0.45109
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					if myRand < 0.15109
-						bid!(3, 6)
-					elsif myRand < 0.45109
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				else
-					challenge!
-				end
-			end
-	  elsif dice_in_play == 7
-			if hand[hand.size - 2] == 6 && hand[hand.size - 1] == 6
-				if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
-					bid!(2, 6)
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					bid!(3, 6)
-				else
-					challenge!
-				end
-			elsif hand[hand.size - 1] == 6
-				if latest_bid.quantity == 1
-					if myRand < 0.162773
-						bid!(2, 6)
-					else
-						bid!(2, 1)
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value < 6
-					if myRand < 0.162773
-						bid!(2, 6)
-					elsif myRand < 0.43832
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					if myRand < 0.162773
-						bid!(3, 6)
-					elsif myRand < 0.43832
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				else
-					challenge!
-				end
-			else
-				if latest_bid.quantity == 1
-					if myRand < 0.102773
-						bid!(2, 6)
-					else
-						bid!(2, 1)
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value < 6
-					if myRand < 0.10109
-						bid!(2, 6)
-					elsif myRand < 0.35109
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				elsif latest_bid.quantity == 2 && latest_bid.value == 6
-					if myRand < 0.10109
-						bid!(3, 6)
-					elsif myRand < 0.35109
-						bid!(3, 1)
-					else
-						challenge!
-					end
-				else
-					challenge!
-				end
-			end
-		else
-			if latest_bid.quantity == 1 && latest_bid.value < 6
-				if myRand < 0.333
-					bid!(1, 6)
-				elsif myRand < 0.666
-					bid!(2, 1)
-				else
-					challenge!
-				end
-			elsif (latest_bid.quantity == 1 && latest_bid.value == 6) || (latest_bid.quantity == 2 && latest_bid.value < 6)
-				if myRand < 0.333
-					bid!(2, 6)
-				else
-					challenge!
-				end
-			else
-				challenge!
-			end
-		end
+    if hand[3] == 6 && hand[4] == 6
+      if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
+        bid!(2, 6)
+      elsif latest_bid.quantity == 2 && latest_bid.value == 6
+        bid!(3, 6)
+      elsif latest_bid.quantity == 3 && latest_bid.value == 6
+        bid!(4, 1)
+      else
+        challenge!
+      end
+    elsif hand[4] == 6
+      if latest_bid.quantity == 1
+        if myRand < 0.24416
+          bid!(2, 6)
+        else
+          bid!(2, 1)
+        end
+      elsif latest_bid.quantity == 2 && latest_bid.value < 6
+        if myRand < 0.48832
+          bid!(2, 6)
+        elsif myRand < 0.63832
+          bid!(3, 1)
+        else
+          challenge!
+        end
+      elsif latest_bid.quantity == 2 && latest_bid.value == 6
+        if myRand < 0.48832
+          bid!(3, 6)
+        elsif myRand < 0.63832
+          bid!(3, 1)
+        else
+          challenge!
+        end
+      else
+        challenge!
+      end
     else
-		if hand[hand.size - 2] == 6 && hand[hand.size - 1] == 6
-			bid!(2, 6)
-		elsif hand[hand.size - 1] == 6
-			if myRand < 0.651937
-				bid!(1, 6)
-			else
-				bid!(1, 1)
-			end
-		else
-			if myRand < 0.351937
-				bid!(1, 6)
-			else
-				bid!(1, 1)
-			end
-		end
+      if latest_bid.quantity == 1
+        if myRand < 0.48832
+          bid!(2, 6)
+        else
+          bid!(2, 1)
+        end
+      elsif latest_bid.quantity == 2 && latest_bid.value < 6
+        if myRand < 0.15109
+          bid!(2, 6)
+        elsif myRand < 0.75109
+          bid!(3, 1)
+        else
+          challenge!
+        end
+      elsif latest_bid.quantity == 2 && latest_bid.value == 6
+        if myRand < 0.05109
+          bid!(3, 6)
+        elsif myRand < 0.75109
+          bid!(3, 1)
+        else
+          challenge!
+        end
+      else
+        challenge!
+      end
+    end
+    elsif dice_in_play == 8
+      if hand[3] == 6 && hand[4] == 6
+        if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
+          bid!(2, 6)
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          bid!(3, 6)
+        elsif latest_bid.quantity == 3 && latest_bid.value == 6
+          bid!(4, 6)
+        else
+          challenge!
+        end
+      elsif hand[4] == 6
+        if latest_bid.quantity == 1
+          if myRand < 0.162773
+            bid!(2, 6)
+          else
+            bid!(2, 1)
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value < 6
+          if myRand < 0.162773
+            bid!(2, 6)
+          elsif myRand < 0.53832
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          if myRand < 0.162773
+            bid!(3, 6)
+          elsif myRand < 0.53832
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        else
+          challenge!
+        end
+      else
+        if latest_bid.quantity == 1
+          if myRand < 0.162773
+            bid!(2, 6)
+          else
+            bid!(2, 1)
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value < 6
+          if myRand < 0.15109
+            bid!(2, 6)
+          elsif myRand < 0.45109
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          if myRand < 0.15109
+            bid!(3, 6)
+          elsif myRand < 0.45109
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        else
+          challenge!
+        end
+      end
+    elsif dice_in_play == 7
+      if hand[hand.size - 2] == 6 && hand[hand.size - 1] == 6
+        if latest_bid.quantity == 1 || (latest_bid.quantity == 2 && latest_bid.value < 6)
+          bid!(2, 6)
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          bid!(3, 6)
+        else
+          challenge!
+        end
+      elsif hand[hand.size - 1] == 6
+        if latest_bid.quantity == 1
+          if myRand < 0.162773
+            bid!(2, 6)
+          else
+            bid!(2, 1)
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value < 6
+          if myRand < 0.162773
+            bid!(2, 6)
+          elsif myRand < 0.43832
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          if myRand < 0.162773
+            bid!(3, 6)
+          elsif myRand < 0.43832
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        else
+          challenge!
+        end
+      else
+        if latest_bid.quantity == 1
+          if myRand < 0.102773
+            bid!(2, 6)
+          else
+            bid!(2, 1)
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value < 6
+          if myRand < 0.10109
+            bid!(2, 6)
+          elsif myRand < 0.35109
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        elsif latest_bid.quantity == 2 && latest_bid.value == 6
+          if myRand < 0.10109
+            bid!(3, 6)
+          elsif myRand < 0.35109
+            bid!(3, 1)
+          else
+            challenge!
+          end
+        else
+          challenge!
+        end
+      end
+    else
+      if latest_bid.quantity == 1 && latest_bid.value < 6
+        if myRand < 0.333
+          bid!(1, 6)
+        elsif myRand < 0.666
+          bid!(2, 1)
+        else
+          challenge!
+        end
+      elsif (latest_bid.quantity == 1 && latest_bid.value == 6) || (latest_bid.quantity == 2 && latest_bid.value < 6)
+        if myRand < 0.333
+          bid!(2, 6)
+        else
+          challenge!
+        end
+      else
+        challenge!
+      end
+    end
+    else
+    if hand[hand.size - 2] == 6 && hand[hand.size - 1] == 6
+      bid!(2, 6)
+    elsif hand[hand.size - 1] == 6
+      if myRand < 0.651937
+        bid!(1, 6)
+      else
+        bid!(1, 1)
+      end
+    else
+      if myRand < 0.351937
+        bid!(1, 6)
+      else
+        bid!(1, 1)
+      end
+    end
     end
   end
 end
@@ -527,10 +527,10 @@ class JimboBot < Player
 end
 
 class FlowBot < Player
-  #This bot just tries to go with the flow of the game
-  #Also it's a play on the name of the band "Flobots" (http://en.wikipedia.org/wiki/Flobots)
-  #Also it plays "blind", not looking at its own hand, and therefore is pretty dumb
-  
+  # This bot just tries to go with the flow of the game
+  # Also it's a play on the name of the band "Flobots" (http://en.wikipedia.org/wiki/Flobots)
+  # Also it plays "blind", not looking at its own hand, and therefore is pretty dumb
+
   def initialize(name)
     @name = name
   end
@@ -538,24 +538,26 @@ class FlowBot < Player
   def go!
     if latest_bid
       if rand > (latest_bid.quantity / dice_in_play)
-	  	bids_array = bids.map { |b| b.value }
-		freq_array = [0.0,0.0,0.0,0.0,0.0,0.0]
-		bids_array.each { |v| freq_array[v-1] += 1 }
-		freq_array_pct = freq_array.collect { |n| n / bids_array.length }
-		if freq_array_pct.max > 0.6
-			flow_bid = freq_array_pct.index(freq_array_pct.max) + 1
-			if flow_bid > latest_bid.value
-				bid!(latest_bid.quantity, flow_bid)
-			else
-				bid!(latest_bid.quantity + 1, flow_bid)
-			end
-		else
-			if latest_bid.value != 6
-				bid!(latest_bid.quantity, latest_bid.value + 1)
-			else
-				bid!(latest_bid.quantity + 1, 1)
-			end
-		end
+        bids_array = bids.map { |b| b.value }
+        freq_array = [0.0,0.0,0.0,0.0,0.0,0.0]
+        bids_array.each { |v| freq_array[v-1] += 1 }
+        freq_array_pct = freq_array.collect { |n| n / bids_array.length }
+
+        if freq_array_pct.max > 0.6
+          flow_bid = freq_array_pct.index(freq_array_pct.max) + 1
+
+          if flow_bid > latest_bid.value
+            bid!(latest_bid.quantity, flow_bid)
+          else
+            bid!(latest_bid.quantity + 1, flow_bid)
+          end
+        else
+          if latest_bid.value != 6
+            bid!(latest_bid.quantity, latest_bid.value + 1)
+          else
+            bid!(latest_bid.quantity + 1, 1)
+          end
+        end
       else
         challenge!
       end
