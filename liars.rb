@@ -796,5 +796,417 @@ class BayesBot < Player
     end
     return new_hash
   end
+end
 
+class TangoBot < Player
+  def initialize(name)
+    @name = name
+  end
+
+  def go!
+    myRand = rand
+    if latest_bid
+      if dice_in_play == 10 || dice_in_play == 9
+        if latest_bid.quantity == 1
+          bid!(2, 1)
+        elsif latest_bid.quantity == 2
+          if hand.count(latest_bid.value) > 0
+            bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+          else
+            bid!(3, latest_bid.value)
+          end
+        elsif latest_bid.quantity == 3
+          if hand.count(latest_bid.value) > 0
+            bid!(4, latest_bid.value)
+          else
+            challenge!
+          end
+        else
+          challenge!
+        end
+      elsif hand.size == 5
+        if dice_in_play == 8
+          if latest_bid.quantity == 1
+            if bids.size >= 3
+              if hand.count(latest_bid.value) > 0
+                bid!(2, latest_bid.value)
+              else
+                bid!(2, 1)
+              end
+            else
+              bid!(2, 1)
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 7
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        else
+          if latest_bid.quantity == 1
+            bid!(4, latest_bid.value)
+          else
+            challenge!
+          end
+        end
+      elsif hand.size == 4
+        if dice_in_play == 8
+          if latest_bid.quantity == 1
+            if bids.size >= 3
+              if hand.count(latest_bid.value) > 0
+                bid!(2, latest_bid.value)
+              else
+                bid!(2, 1)
+              end
+            else
+              bid!(2, 1)
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              bid!(3, latest_bid.value)
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 7
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 6
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        else
+          if latest_bid.quantity == 1
+            bid!(4, latest_bid.value)
+          else
+            challenge!
+          end
+        end
+      elsif hand.size == 3
+        if dice_in_play == 8
+          if latest_bid.quantity == 1
+            if bids.size >= 3
+              if hand.count(latest_bid.value) > 0
+                bid!(2, latest_bid.value)
+              else
+                bid!(2, 1)
+              end
+            else
+              bid!(2, 1)
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 7
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 6
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 5
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        else
+          if latest_bid.quantity == 1
+            bid!(3, latest_bid.value)
+          else
+            challenge!
+          end
+        end
+      elsif hand.size == 2
+        if dice_in_play == 7
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 6
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 5
+          if latest_bid.quantity == 1
+            if bids.size >= 3
+              if hand.count(latest_bid.value) > 0
+                bid!(2, latest_bid.value)
+              else
+                bid!(2, 1)
+              end
+            else
+              bid!(2, 1)
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 4
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        else
+          if latest_bid.quantity == 1
+            bid!(2, latest_bid.value)
+          else
+            challenge!
+          end
+        end
+      else
+        if dice_in_play == 6
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 5
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 4
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        elsif dice_in_play == 3
+          if latest_bid.quantity == 1
+            if hand.count(latest_bid.value) > 0
+              bid!(2, latest_bid.value)
+            else
+              if latest_bid.value < 6
+                bid!(1, latest_bid.value + 1)
+              else
+                bid!(2, 1)
+              end
+            end
+          elsif latest_bid.quantity == 2
+            if hand.count(latest_bid.value) > 0
+              bid!(2 + hand.count(latest_bid.value), latest_bid.value)
+            else
+              challenge!
+            end
+          else
+            challenge!
+          end
+        else
+          if latest_bid.value < hand[0]
+            bid!(1, hand[0])
+          else
+            bid!(2, hand[0])
+          end
+        end
+      end
+    else
+      bid!(1, 1)
+    end
+  end
 end
