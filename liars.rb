@@ -576,26 +576,15 @@ class BayesBot < Player
   end
  
   def go!
-  
     #prevent code from breaking due to dumb bids
-    if latest_bid
-      if latest_bid.quantity > dice_in_play
-        challenge!
-        return
-      end
-      if latest_bid.quantity == dice_in_play and latest_bid.value == 6
-        challenge!
-        return
-      end
+    if auto_challenge?
+      challenge!
+      return
     end
     
     #set initial priors
-    five_priors = [0.401877572016461,0.401877572016461,0.160751028806584,0.0321502057613169,0.00321502057613169,0.000128600823045268]
-    four_priors = [0.482253086419753,0.385802469135803,0.115740740740741,0.0154320987654321,0.000771604938271605]
-    three_priors = [0.578703703703704,0.347222222222222,0.0694444444444445,0.00462962962962963]
-    two_priors = [0.694444444444445,0.277777777777778,0.0277777777777778]
-    one_priors = [0.833333333333333,0.166666666666667]
-    all_priors = [one_priors,two_priors,three_priors,four_priors,five_priors]
+    all_priors = set_initial_priors
+    
     #individual hand tables
     all_odds = {}
     number_of_dice_per_player.each do |name,num_dice|
@@ -653,54 +642,28 @@ class BayesBot < Player
       real_odds_prob = aggregate_table(all_odds,"real",my_hand_odds,"","","")
       real_odds_cum = make_table_cum(real_odds_prob)
     end
-	
-    #p real_odds_cum
     
     #set strategy
-    #more strategies to come later once the other bots catch up
-    strategy = "safe"
-      
-    best_odds = 0
+    #p all_odds[latest_bid.player]
+    select_strategy(public_odds_cum,real_odds_cum)
+    
+  end
+  
+  def auto_challenge?
     if latest_bid
-      if latest_bid.value == 6
-        start_quantity = latest_bid.quantity + 1
-        start_value = 1
-      else
-        start_quantity = latest_bid.quantity
-        start_value = latest_bid.value + 1
-      end
-    else
-      start_quantity = 1
-      start_value = 1
+      return true if latest_bid.quantity > dice_in_play
+      return true if latest_bid.quantity == dice_in_play and latest_bid.value == 6
     end
-      
-    #make decision
-    if strategy == "safe"
-      for a in start_quantity..dice_in_play
-        for b in 1..6
-          if a != start_quantity or b >= start_value
-            if real_odds_cum[b-1][a] > best_odds
-              best_odds = real_odds_cum[b-1][a]
-              best_quantity = a
-              best_value = b
-            end
-            if real_odds_cum[b-1][a] == best_odds and start_quantity == a and start_value == b
-              best_quantity = a
-              best_value = b
-            end
-          end
-        end
-      end
-      if latest_bid
-        if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[best_value-1][best_quantity]
-          challenge!
-        else
-          bid!(best_quantity, best_value)
-        end
-      else
-        bid!(best_quantity, best_value)
-      end
-    end
+  end
+  
+  def set_initial_priors
+    five_priors = [0.401877572016461,0.401877572016461,0.160751028806584,0.0321502057613169,0.00321502057613169,0.000128600823045268]
+    four_priors = [0.482253086419753,0.385802469135803,0.115740740740741,0.0154320987654321,0.000771604938271605]
+    three_priors = [0.578703703703704,0.347222222222222,0.0694444444444445,0.00462962962962963]
+    two_priors = [0.694444444444445,0.277777777777778,0.0277777777777778]
+    one_priors = [0.833333333333333,0.166666666666667]
+    all_priors = [one_priors,two_priors,three_priors,four_priors,five_priors]
+    return all_priors
   end
   
   def aggregate_table(all_odds,table_type,my_hand_odds,hypothetical_player,hypothetical_hand,hypothetical_hand_size)
@@ -796,7 +759,232 @@ class BayesBot < Player
     end
     return new_hash
   end
-end
+
+  def select_strategy(public_odds_cum,real_odds_cum)
+    #set chances of choosing various strategies
+    best_odds_public = find_best_odds(public_odds_cum)[2]
+    best_odds_real = find_best_odds(real_odds_cum)[2]
+    
+    strategy_scorer = {}
+    #safe score
+    strategy_scorer["safe"] = 0
+    #bluff score
+    strategy_scorer["bluff"] = 10
+    #blindOdds score
+    strategy_scorer["blindOdds"] = 10
+    #preemptor score
+    strategy_scorer["preemptor"] = 10
+    #standard score
+    strategy_scorer["standard"] = 10
+    
+    total_scores = 0
+    strategy_scorer.each do |strat, score|
+      total_scores += score
+    end
+    
+    #select strategy
+    chosen_strategy = ""
+    decider_num = rand * total_scores
+    strategy_scorer.each do |strat, score|
+      if decider_num <= score
+        chosen_strategy = strat
+        break
+      end
+      decider_num -= score
+    end
+    
+    if chosen_strategy == "safe"
+      strategy_safe(real_odds_cum)
+    elsif chosen_strategy == "bluff"
+      strategy_bluff(real_odds_cum)
+    elsif chosen_strategy == "blindOdds"
+      strategy_blind_odds(public_odds_cum,real_odds_cum)
+    elsif chosen_strategy == "preemptor"
+      strategy_preemptor(public_odds_cum,real_odds_cum)
+    elsif chosen_strategy == "standard"
+      strategy_standard(real_odds_cum)
+    end
+  end
+  
+  def first_valid_bid
+    if latest_bid
+      if latest_bid.value == 6
+        start_quantity = latest_bid.quantity + 1
+        start_value = 1
+      else
+        start_quantity = latest_bid.quantity
+        start_value = latest_bid.value + 1
+      end
+    else
+      start_quantity = 1
+      start_value = 1
+    end
+    return [start_quantity,start_value]
+  end
+  
+  def find_best_odds(cumulative_table)
+    # returns array of [quantity, value, odds]
+    start_quantity = first_valid_bid[0]
+    start_value = first_valid_bid[1]
+  
+    best_odds = 0
+    for a in start_quantity..dice_in_play
+      for b in 1..6
+        if a != start_quantity or b >= start_value
+          if cumulative_table[b-1][a] > best_odds
+            best_odds = cumulative_table[b-1][a]
+            best_quantity = a
+            best_value = b
+          end
+          if cumulative_table[b-1][a] == best_odds and start_quantity == a and start_value == b
+            best_quantity = a
+            best_value = b
+          end
+        end
+      end
+    end
+    
+    #there's some bug here
+    if best_odds == 0
+      return [start_quantity,start_value,0]
+    end
+    
+    return [best_quantity, best_value, best_odds]
+  end
+  
+  def strategy_safe(real_odds_cum)
+    best_odds_array = find_best_odds(real_odds_cum)
+    best_value = best_odds_array[1]
+    best_quantity = best_odds_array[0]
+    if latest_bid
+      if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[best_value-1][best_quantity]
+        challenge!
+      else
+        bid!(best_quantity, best_value)
+      end
+    else
+      bid!(best_quantity, best_value)
+    end
+  end
+  
+  def strategy_bluff(real_odds_cum)
+    for i in 1..6
+      k = 7 - i
+      if hand.count(k) == 0
+        bluff_value = k
+      end
+    end
+    if latest_bid
+      if latest_bid.value >= bluff_value
+          if latest_bid.quantity >= dice_in_play
+            challenge!
+          else
+            if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[bluff_value-1][latest_bid.quantity + 1]
+              strategy_safe(real_odds_cum)
+              return
+            else
+              bid!(latest_bid.quantity + 1, bluff_value)
+            end
+          end
+      else
+        if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[bluff_value-1][latest_bid.quantity]
+          strategy_safe(real_odds_cum)
+          return
+        else
+          bid!(latest_bid.quantity, bluff_value)
+        end
+      end
+    else
+      bid!(1, bluff_value) 
+    end
+  end
+  
+  def strategy_blind_odds(public_odds_cum,real_odds_cum)
+    best_odds_array = find_best_odds(public_odds_cum)
+    best_value = best_odds_array[1]
+    best_quantity = best_odds_array[0]
+    if latest_bid
+      if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[best_value-1][best_quantity]
+        challenge!
+      else
+        bid!(best_quantity, best_value)
+      end
+    else
+      bid!(best_quantity, best_value)
+    end    
+  end
+
+  def strategy_standard(real_odds_cum)
+    best_odds = find_best_odds(real_odds_cum)[2]
+    cutoff_odds = best_odds * 0.8
+    start_quantity = first_valid_bid[0]
+    start_value = first_valid_bid[1]
+    acceptable_bids = []
+    
+    for a in start_quantity..dice_in_play
+      for b in 1..6
+        if a != start_quantity or b >= start_value
+          if real_odds_cum[b-1][a] >= cutoff_odds
+            acceptable_bids << [a, b]
+          end
+        end
+      end
+    end
+    
+    bid_selector = (rand * acceptable_bids.length).ceil
+    selected_quantity = acceptable_bids[bid_selector-1][0]
+    selected_value = acceptable_bids[bid_selector-1][1]
+
+    if latest_bid
+      if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[selected_value-1][selected_quantity]
+        challenge!
+      else
+        bid!(selected_quantity, selected_value)
+      end
+    else
+      bid!(selected_quantity, selected_value)
+    end
+  end
+  
+  def strategy_preemptor(public_odds_cum,real_odds_cum)
+    if latest_bid
+      if latest_bid.value == 6
+        preempt_quant = latest_bid.quantity + 1
+      else
+        preempt_quant = latest_bid.quantity
+      end
+    else
+      preempt_quant = 1
+    end
+    
+    start_number = preempt_quant
+    if rand > 0.5
+      for i in start_number..dice_in_play
+        if public_odds_cum[5][i] > 0.5
+          preempt_quant = i
+        end
+      end
+    else
+      for i in start_number..dice_in_play
+        if real_odds_cum[5][i] > 0.5
+          preempt_quant = i
+        end
+      end
+    end
+    
+    if latest_bid
+      if (1-real_odds_cum[latest_bid.value-1][latest_bid.quantity]) > real_odds_cum[5][preempt_quant]
+        strategy_safe(real_odds_cum)
+        return
+      else
+        bid!(preempt_quant, 6)
+      end
+    else
+      bid!(preempt_quant, 6)
+    end
+  end
+
+end  
 
 class TangoBot < Player
   def initialize(name)
