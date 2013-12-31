@@ -1210,4 +1210,4 @@ class TangoBot < Player
 	  bid!(1, 1)
 	end
   end
-end
+ end
